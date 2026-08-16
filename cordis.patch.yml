@@ -1,0 +1,21 @@
+# gavel-review bundle patch（dsh 接入层）。
+#
+# 通过 package.json 的 `dsh.bundle.patch` 字段被 dsh 的 profile 组合器解析：
+# 该文件向 Cordis 配置行列表插入一行，装载 gavel-review 插件，
+# 插件在 apply(ctx, config) 中把 gavel_review 工具注册到 ctx.tools。
+#
+# 行配置可被用户 profile 中的 cordis.patch.yml 按 id（gavel）整体覆盖。
+- insert:
+  - id: gavel
+    name: 'gavel-review'
+    config:
+      toolName: gavel_review
+      provider: ''
+      model: ''
+      lenses: [correctness, security, maintainability]
+      deep: false
+      history: true
+      historyDir: .gavel
+      maxCharsPerLens: 24000
+      maxFindingsPerLens: 12
+      maxTokens: 3000

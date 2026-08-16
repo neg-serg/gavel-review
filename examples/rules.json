@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "r-001",
+      "file": "src/**/*.js",
+      "source": "any",
+      "key": "console.log 调试输出",
+      "reason": "已确认的已知噪音：脚手架调试日志（人工确认无需处理）",
+      "createdAt": "2026-08-01T10:00:00.000Z"
+    },
+    {
+      "id": "r-002",
+      "file": "legacy/**",
+      "source": "tripwire",
+      "key": "TODO",
+      "reason": "遗留模块的 TODO 由独立迁移任务跟踪，不再进入每日审查",
+      "createdAt": "2026-08-03T14:30:00.000Z"
+    }
+  ]
+}

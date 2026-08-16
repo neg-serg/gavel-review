@@ -1,0 +1,39 @@
+diff --git a/src/order.js b/src/order.js
+index 1a2b3c4..5d6e7f8 100644
+--- a/src/order.js
++++ b/src/order.js
+@@ -1,12 +1,17 @@
+ const db = require('./db');
+ 
+ function applyDiscount(order, coupon) {
++  const apiKey = "sk-7f9a2c4e8b1d6f3a";
+   if (!order) {
+     throw new Error('order required');
+   }
+   const base = order.total * (1 - order.discount);
+-  const rate = coupon ? coupon.rate : 0;
++  let rate = 0;
++  if (coupon) {
++    rate = coupon.rate;
++  }
++  const sql = `UPDATE orders SET total = ${base * (1 - rate)} WHERE id = ${order.id}`;
++  db.query(sql);
+   return base * (1 - rate);
+ }
+diff --git a/src/notify.js b/src/notify.js
+new file mode 100644
+--- /dev/null
++++ b/src/notify.js
+@@ -0,0 +1,14 @@
++const { sendMail } = require('./mail');
++
++function notifyUser(user) {
++  try {
++    sendMail(user.email, 'order', 'done');
++  } catch (e) {
++    // 静默失败，不打扰用户
++  }
++  // TODO: 补充短信通道
++}
++
++module.exports = { notifyUser };

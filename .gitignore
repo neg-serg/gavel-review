@@ -1,0 +1,11 @@
+# 本地产物
+node_modules/
+lib/
+*.tgz
+
+# 运行时数据（审查历史、抑制规则）
+.gavel/
+
+# 编辑器与系统
+.DS_Store
+Thumbs.db
