@@ -74,7 +74,9 @@ export function loadRules(path: string): SuppressionRule[] {
         r != null &&
         typeof r.id === 'string' &&
         typeof r.file === 'string' &&
+        r.file.length > 0 &&
         typeof r.key === 'string' &&
+        r.key.length > 0 &&
         typeof r.reason === 'string' &&
         typeof r.createdAt === 'string' &&
         (r.source === 'lens' || r.source === 'tripwire' || r.source === 'any'),

@@ -3,7 +3,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -94,6 +94,26 @@ test('saveRules 写出 version 1 格式并可读回', () => {
   assert.deepEqual(loadRules(file), rules);
   const raw = JSON.parse(readFileSync(file, 'utf8'));
   assert.equal(raw.version, 1);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('loadRules：空 file 或空 key 的规则被拒绝（无法匹配的垃圾规则）', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'gavel-'));
+  const file = join(dir, 'rules.json');
+  writeFileSync(
+    file,
+    JSON.stringify({
+      version: 1,
+      rules: [
+        { id: 'r-ok', file: '**', source: 'any', key: '注入', reason: 't', createdAt: 'x' },
+        { id: 'r-no-file', file: '', source: 'any', key: '注入', reason: 't', createdAt: 'x' },
+        { id: 'r-no-key', file: '**', source: 'any', key: '', reason: 't', createdAt: 'x' },
+      ],
+    }),
+  );
+  const rules = loadRules(file);
+  assert.equal(rules.length, 1);
+  assert.equal(rules[0]!.id, 'r-ok');
   rmSync(dir, { recursive: true, force: true });
 });
 
