@@ -77,7 +77,7 @@ adversarial-review/
 │   │   └── report.ts     # Markdown / JSON 报告渲染
 │   ├── llm/              # 模型客户端（接口 + HTTP 实现）
 │   └── dsh/plugin.ts     # dsh 适配：Cordis 插件 + 工具注册
-├── test/                 # node:test 测试套件（80 项）
+├── test/                 # node:test 测试套件（97 项）
 └── examples/             # 示例 diff、规则文件
 ```
 
@@ -252,7 +252,7 @@ dsh plugin --profile <你的 profile> add <本包路径或已发布的包名>
 ## 开发与测试
 
 ```bash
-npm test          # node:test 全量测试（80 项；测试直接运行源码，需 Node >= 23.6）
+npm test          # node:test 全量测试（97 项；测试直接运行源码，需 Node >= 23.6）
 npm run typecheck # tsc --noEmit
 npm run build     # 产出 lib/（npm install 时经 prepare 钩子自动执行）
 ```

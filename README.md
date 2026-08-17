@@ -77,7 +77,7 @@ adversarial-review/
 │   │   └── report.ts     # Markdown / JSON report rendering
 │   ├── llm/              # model client (interface + HTTP implementation)
 │   └── dsh/plugin.ts     # dsh adapter: Cordis plugin + tool registration
-├── test/                 # node:test test suite (80 tests)
+├── test/                 # node:test test suite (97 tests)
 └── examples/             # sample diffs, rule files
 ```
 
@@ -252,7 +252,7 @@ Matching: file glob (supports `**` / `*` / `?`) + source (`lens` / `tripwire` / 
 ## Development and testing
 
 ```bash
-npm test          # full node:test suite (80 tests; tests run the source directly, requires Node >= 23.6)
+npm test          # full node:test suite (97 tests; tests run the source directly, requires Node >= 23.6)
 npm run typecheck # tsc --noEmit
 npm run build     # produces lib/ (run automatically via the prepare hook on npm install)
 ```
