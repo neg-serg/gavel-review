@@ -261,7 +261,7 @@ Code conventions: pure ESM, erasable TypeScript syntax (no enums/decorators), re
 
 - **Report-only, never modifies**: the plugin never touches code; fix suggestions are just text.
 - **The lens set is configurable but fixed**: the default three perspectives cover correctness/security/maintainability; developers can extend their own lenses and checkpoint lists in `lenses.ts`.
-- **The sentinel is heuristic**: regex rules produce a small number of false positives; they start at `informational`, are graded in combination with lens findings, and can be suppressed by suppression rules.
+- **The sentinel is heuristic**: regex rules produce a small number of false positives; hits carry each rule's own impact/confidence and go through the same deterministic grading (so e.g. hardcoded credentials can land at `required`/`blocker`), and they can be suppressed by suppression rules.
 - **Deep review adds cost**: each round of deep review is an additional serial model call; it is off by default and enabled on demand.
 
 ---
