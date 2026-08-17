@@ -501,3 +501,28 @@ test('paths 模式：读取文件并审查，缺失文件被记录', async () =>
   assert.ok(report.stats.tripwireHits >= 1);
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('纯删除文件的 diff 不进入审查视图', async () => {
+  const report = await runReview(
+    {
+      scope: {
+        kind: 'diff',
+        diffText: `diff --git a/old.py b/old.py
+deleted file mode 100644
+--- a/old.py
++++ /dev/null
+@@ -1,2 +0,0 @@
+-print("bye")
+-print("again")
+`,
+      },
+      lenses: ['correctness', 'security'],
+      model: { provider: 'fake', model: 'fake-1' },
+    },
+    { llm: fakeLlm({ '正确性': '[]', '安全性': '[]' }) },
+  );
+  assert.equal(report.scope.files.length, 0, '删除文件不应出现在审查文件清单');
+  assert.equal(report.stats.files, 0);
+  assert.equal(report.stats.addedLines, 0);
+  assert.equal(report.findings.length, 0);
+});
