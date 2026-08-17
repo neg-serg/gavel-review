@@ -6,6 +6,10 @@ lib/
 # 运行时数据（审查历史、抑制规则）
 .gavel/
 
+# 案卷截断时的临时文件（docket.jsonl.<pid>.tmp）与日志
+*.tmp
+*.log
+
 # 编辑器与系统
 .DS_Store
 Thumbs.db
