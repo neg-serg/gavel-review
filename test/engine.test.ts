@@ -186,6 +186,55 @@ test('深度复核：驳回的发现降级为观察', async () => {
   assert.equal(confirmed.verified, 'confirmed');
 });
 
+test('深度复核调用失败：降级为解析失败，审查照常返回', async () => {
+  const report = await runReview(
+    {
+      scope: { kind: 'diff', diffText: SAMPLE_DIFF },
+      lenses: ['correctness'],
+      deep: true,
+      model: { provider: 'fake', model: 'fake-1' },
+    },
+    {
+      llm: {
+        async complete({ system, user }) {
+          if (system?.includes('正确性')) return { text: CORRECTNESS_RESPONSE };
+          assert.ok(user.includes('候选清单'));
+          throw new Error('模拟深度复核网络中断');
+        },
+      },
+    },
+  );
+  assert.ok(report.findings.length >= 1, '深度复核失败不应丢弃已有发现');
+  assert.ok(report.parseFailures.some((f) => f.lens === 'deep'), '应记录 deep 解析失败');
+  assert.ok(report.parseFailures.some((f) => f.reason.includes('深度复核调用失败')));
+  assert.ok(report.findings.every((f) => f.verified === undefined), '失败时不应产生任何复核判定');
+});
+
+test('深度复核阶段取消：仍然中止整次审查', async () => {
+  const controller = new AbortController();
+  await assert.rejects(
+    runReview(
+      {
+        scope: { kind: 'diff', diffText: SAMPLE_DIFF },
+        lenses: ['correctness'],
+        deep: true,
+        model: { provider: 'fake', model: 'fake-1' },
+        signal: controller.signal,
+      },
+      {
+        llm: {
+          async complete({ system }) {
+            if (system?.includes('正确性')) return { text: CORRECTNESS_RESPONSE };
+            controller.abort();
+            throw new DOMException('已取消', 'AbortError');
+          },
+        },
+      },
+    ),
+    (error: Error) => error.name === 'AbortError',
+  );
+});
+
 test('抑制规则过滤达标问题', async () => {
   const report = await runReview(
     {

@@ -143,19 +143,28 @@ export async function runReview(options: ReviewOptions, deps: RunDeps): Promise<
     : new Set<string>();
   let findings = mergeCandidates(candidates, knownFingerprints);
 
-  // 5. 深度复核（串行挑战式再验证）
+  // 5. 深度复核（串行挑战式再验证；调用失败降级为解析失败，与透镜失败容忍一致）
   if (options.deep && findings.length > 0) {
-    const verdict = await deepChallenge(findings.slice(0, DEFAULTS.deepTopK), deps.llm, signal);
-    parseFailures.push(...verdict.failures);
-    for (const [index, v] of verdict.decisions.entries()) {
-      const finding = findings[index];
-      if (!finding) continue;
-      if (v === 'confirmed') finding.verified = 'confirmed';
-      else if (v === 'refuted') {
-        finding.verified = 'refuted';
-        finding.severity = 'informational';
-        finding.score = Math.min(finding.score, 2);
+    try {
+      const verdict = await deepChallenge(findings.slice(0, DEFAULTS.deepTopK), deps.llm, signal);
+      parseFailures.push(...verdict.failures);
+      for (const [index, v] of verdict.decisions.entries()) {
+        const finding = findings[index];
+        if (!finding) continue;
+        if (v === 'confirmed') finding.verified = 'confirmed';
+        else if (v === 'refuted') {
+          finding.verified = 'refuted';
+          finding.severity = 'informational';
+          finding.score = Math.min(finding.score, 2);
+        }
       }
+    } catch (error) {
+      if (signal?.aborted) throw new DOMException('审查已取消', 'AbortError');
+      parseFailures.push({
+        lens: 'deep',
+        reason: `深度复核调用失败：${(error as Error).message}`,
+        raw: '',
+      });
     }
   }
 
