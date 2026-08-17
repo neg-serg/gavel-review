@@ -91,9 +91,11 @@ function usage(): string {
 `;
 }
 
+/** CLI 可预期错误：由 main 统一打印并映射为退出码 1（与 process.exit 等价但可测试）。 */
+export class CliError extends Error {}
+
 function fail(message: string): never {
-  console.error(`gavel: ${message}`);
-  process.exit(1);
+  throw new CliError(message)
 }
 
 function readStdin(): string {
@@ -105,7 +107,7 @@ function readStdin(): string {
 }
 
 /** 解析命令行参数（简化实现，支持 --k v 与重复旗标）。 */
-function parseArgs(argv: string[]): { command: string; options: CliOptions } {
+export function parseArgs(argv: string[]): { command: string; options: CliOptions } {
   const options: CliOptions = {
     paths: [],
     deep: false,
@@ -180,7 +182,9 @@ function parseArgs(argv: string[]): { command: string; options: CliOptions } {
     const add = take('add');
     if (add != null) {
       const file = flags.shift();
-      if (!file || file.startsWith('--')) fail('rules --add 需要 <key> <file>');
+      if (!add || !file || file.startsWith('--')) {
+        fail('rules --add 需要非空的 <key> 与 <file>');
+      }
       extra.addKey = add;
       extra.addFile = file;
       rejectLeftovers(flags);
@@ -464,11 +468,12 @@ export async function main(argv: string[]): Promise<number> {
     if (command === 'history') return await cmdHistory(extra);
     return await cmdRules(extra);
   } catch (error) {
-    const message = (error as Error).message;
+    const message = error instanceof Error ? error.message : String(error);
     if (error instanceof DOMException && error.name === 'AbortError') {
       console.error('gavel: 审查已取消');
       return 130;
     }
-    fail(message);
+    console.error(`gavel: ${message}`);
+    return 1;
   }
 }
