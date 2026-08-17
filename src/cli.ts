@@ -88,6 +88,8 @@ function usage(): string {
   --max-findings <n> 每个透镜最多报告数（默认 12）
 
 环境变量：GAVEL_API_KEY、GAVEL_BASE_URL、GAVEL_MODEL、GAVEL_MAX_TOKENS。
+
+退出码：0 成功（含无发现）/ 1 参数或运行错误 / 2 --fail-on 门槛命中 / 130 审查被取消。
 `;
 }
 

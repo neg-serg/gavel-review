@@ -138,6 +138,8 @@ Common options:
 
 When the build artifacts are absent, the CLI automatically falls back to executing the TypeScript source directly under `src/` (Node >= 23.6 has built-in type stripping).
 
+Exit codes: `0` success (including "no findings"); `1` argument or run error (missing API key, invalid flags, unknown lens, I/O failure); `2` the `--fail-on` gate tripped (a finding reached the configured level); `130` review cancelled via signal.
+
 ## dsh (DeepSeek Harness) integration
 
 dsh uses an "everything is a plugin" architecture: a plugin is an npm package that declares an integration patch via the `dsh.bundle.patch` field in `package.json`; the patch inserts a plugin line into the Cordis config line list; the plugin registers capabilities in `apply(ctx, config)` with reversible effects. This plugin's dsh integration points:

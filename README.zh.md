@@ -138,6 +138,8 @@ node bin/gavel.mjs rules --list
 
 未构建产物时 CLI 自动回退为直接执行 `src/` 下的 TypeScript 源码（Node >= 23.6 内置类型擦除）。
 
+退出码：`0` 成功（含无发现）；`1` 参数或运行错误（缺少 API 密钥、非法旗标、未知透镜、IO 失败）；`2` `--fail-on` 门槛命中（存在达到指定级别的问题）；`130` 审查被取消。
+
 ## dsh（DeepSeek Harness）接入
 
 dsh 采用「一切皆插件」架构：插件即 npm 包，通过 `package.json` 的 `dsh.bundle.patch` 字段声明接入补丁；补丁向 Cordis 配置行列表插入插件行；插件在 `apply(ctx, config)` 中以可逆效果注册能力。本插件的 dsh 接入点：
