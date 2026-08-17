@@ -76,6 +76,32 @@ test('不相关的邻近发现（不同检查点且词元不重叠）不合并',
   assert.equal(mergeCandidates(candidates).length, 2);
 });
 
+test('邻近行的不同哨兵规则不误合并（检查点按规则区分）', () => {
+  const tripwire = (ruleId: string, ruleName: string, line: number) => ({
+    lens: 'tripwire' as const,
+    ruleId,
+    ruleName,
+    category: '可维护性',
+    file: 'a.ts',
+    line,
+    snippet: 'x',
+    impact: 1 as const,
+    confidence: 2 as const,
+    suggestion: 's',
+  });
+  const candidates = [
+    tripwire('console-log', '调试日志输出', 10),
+    tripwire('todo-marker', '未完成标记', 12),
+  ];
+  const merged = mergeCandidates(candidates);
+  assert.equal(merged.length, 2, '不同规则即使行邻近也应各自成簇');
+  // 同一规则在邻近行的多次命中仍合并为一
+  const same = mergeCandidates([tripwire('console-log', '调试日志输出', 10), tripwire('console-log', '调试日志输出', 12)]);
+  assert.equal(same.length, 1);
+  // 纯哨兵簇的检查点标记保持 TRIPWIRE
+  assert.equal(merged[0]!.checkpoint, 'TRIPWIRE');
+});
+
 test('哨兵与透镜同处问题合并为 mixed，佐证生效', () => {
   const candidates = [
     lensFinding({ lens: 'security', title: '硬编码的 API 密钥泄露风险', file: 'c.ts', line: 3, checkpoint: 'S02' }),

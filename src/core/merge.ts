@@ -189,12 +189,16 @@ export function clusterCandidates(candidates: Candidate[]): Cluster[] {
   return clusters;
 }
 
-/** 提取候选的检查点 id（C01/S02/M03 等）。 */
+/**
+ * 提取候选的检查点 id（C01/S02/M03 等）。
+ * 哨兵命中无检查点概念，但必须按规则区分：若全部返回 'tripwire'，
+ * 邻近行的不同哨兵规则会因“检查点相同”被误合并。
+ */
 function checkpointId(candidate: Candidate): string {
   if ('checkpoint' in candidate && candidate.checkpoint) {
     return candidate.checkpoint.trim().split(/\s+/)[0] ?? '';
   }
-  return 'tripwire';
+  return isTripwire(candidate) ? `tripwire:${candidate.ruleId}` : 'tripwire';
 }
 
 /** 候选的“标题”：透镜发现用 title，哨兵命中用规则名。 */
@@ -305,7 +309,7 @@ export function mergeCandidates(
     const checkpoint =
       'checkpoint' in checkpointMember && checkpointMember.checkpoint
         ? checkpointMember.checkpoint
-        : checkpointId(top) === 'tripwire'
+        : checkpointId(top).startsWith('tripwire')
           ? 'TRIPWIRE'
           : '';
 
